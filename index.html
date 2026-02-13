@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Horizon City Mentor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body { font-family: Arial; padding:20px; background:#111; color:#fff; }
+button { padding:10px; margin-top:10px; }
+textarea { width:100%; height:100px; }
+.box { border:1px solid #555; padding:10px; margin-top:15px; white-space:pre-wrap; }
+</style>
+</head>
+<body>
+
+<h2>Horizon City Civil Engineering Mentor</h2>
+
+<div id="status"></div>
+
+<textarea id="notes" placeholder="Upload notes or type proceed"></textarea>
+<br>
+<button onclick="runSession()">Start Session</button>
+
+<div id="output"></div>
+
+<script>
+const API_KEY = AIzaSyAORydq4j9eeBTLdySOYv4yzIfD8lkErJo;
+
+if(!localStorage.getItem("current_day")){
+  localStorage.setItem("current_day",1);
+  localStorage.setItem("current_session",1);
+}
+
+function runSession(){
+
+let day = localStorage.getItem("current_day");
+let session = localStorage.getItem("current_session");
+let notes = document.getElementById("notes").value;
+
+document.getElementById("status").innerHTML =
+"Day " + day + " - Session " + session;
+
+let prompt = `
+Role: Act as “The Horizon City Civil Engineering Mentor.”
+
+Follow strict structure.
+Day ${day} – Session ${session}.
+
+If notes are not validated, only generate SESSION TOPIC & NOTE REQUEST box.
+Notes provided:
+${notes}
+`;
+
+fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key="+API_KEY,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+contents:[{parts:[{text:prompt}]}]
+})
+})
+.then(res=>res.json())
+.then(data=>{
+let text = data.candidates[0].content.parts[0].text;
+document.getElementById("output").innerHTML =
+"<div class='box'>"+text+"</div>";
+});
+}
+
+</script>
+
+</body>
+</html>
